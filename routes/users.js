@@ -7,7 +7,7 @@ require('dotenv').config();
 
 const router = express.Router();
 
-// 🟢 تسجيل مستخدم جديد
+
 router.post('/signup', async (req, res) => {
     try {
         const { name, username, password } = req.body;
@@ -16,16 +16,16 @@ router.post('/signup', async (req, res) => {
             return res.status(400).json({ message: '❌ All fields are required' });
         }
 
-        // التحقق مما إذا كان اسم المستخدم موجودًا مسبقًا
+        
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ message: '❌ Username already exists' });
         }
 
-        // تشفير كلمة المرور
+      
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // إنشاء المستخدم الجديد
+       
         const newUser = new User({ name, username, password: hashedPassword });
         await newUser.save();
 
@@ -36,24 +36,24 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-// 🟢 تسجيل الدخول وإرجاع توكن JWT
+
 router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        // البحث عن المستخدم
+       
         const user = await User.findOne({ username });
         if (!user) {
             return res.status(400).json({ message: '❌ Invalid username or password' });
         }
 
-        // التحقق من كلمة المرور
+       
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: '❌ Invalid username or password' });
         }
 
-        // توليد توكن JWT صالح لمدة 10 دقائق
+        
         const token = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '10m' });
 
         res.json({ message: '✅ Login successful', token });
@@ -63,10 +63,10 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// 🟢 جلب جميع المستخدمين (يتطلب مصادقة)
+
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        const users = await User.find().select('-password'); // لا ترجع كلمات المرور
+        const users = await User.find().select('-password'); 
         res.json(users);
     } catch (error) {
         console.error('❌ Failed to fetch users:', error);
@@ -74,7 +74,7 @@ router.get('/', authMiddleware, async (req, res) => {
     }
 });
 
-// 🟢 تحديث بيانات المستخدم (يتطلب مصادقة)
+
 router.put('/:id', authMiddleware, async (req, res) => {
     try {
         const { name, username } = req.body;
@@ -92,7 +92,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
     }
 });
 
-// 🟢 حذف مستخدم (يتطلب مصادقة)
+
 router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const deletedUser = await User.findByIdAndDelete(req.params.id);
