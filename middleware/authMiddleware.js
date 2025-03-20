@@ -2,17 +2,17 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const authMiddleware = (req, res, next) => {
-    const authHeader = req.header('Authorization'); // استخراج التوكن من الهيدر
+    const authHeader = req.header('Authorization'); 
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: '❌ Access Denied! No valid token provided.' });
     }
 
-    const token = authHeader.split(' ')[1]; // استخراج التوكن الفعلي
+    const token = authHeader.split(' ')[1]; 
 
     try {
-        const verified = jwt.verify(token, process.env.JWT_SECRET); // التحقق من صحة التوكن
-        req.user = verified; // تخزين بيانات المستخدم المستخرجة من التوكن
+        const verified = jwt.verify(token, process.env.JWT_SECRET); 
+        req.user = verified; 
         next(); 
     } catch (error) {
         if (error.name === 'TokenExpiredError') {
